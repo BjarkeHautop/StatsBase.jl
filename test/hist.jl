@@ -115,7 +115,7 @@ end
     @test StatsBase.histrange([1.05 for i in 1:100], 10, :left) == 1.05:1.0:2.05
 
     # Issue 972: values whose magnitude is so large that a bin width of
-    # one (or the requested width) is below the floating-point spacing
+    # one (or the computed width) is below the floating-point spacing
     let x = -5.603325961434038e25
         r = StatsBase.histrange([x, x], 10, :left)
         @test first(r) == x
@@ -124,6 +124,7 @@ end
         for closed in (:left, :right), n in (10, 100, 1000)
             r = StatsBase.histrange(x, nextfloat(x, 3), n, closed)
             @test length(r) < 100
+            @test step(r) >= eps(x)
             if closed == :left
                 @test first(r) <= x
                 @test last(r) > nextfloat(x, 3)

@@ -44,9 +44,8 @@ function histrange(lo::F, hi::F, n::Integer, closed::Symbol=:left) where F
         start = F(hi)
         step = one(F)
         if start + step == start
-            # step is below the floating-point spacing at `hi`: the endpoint
-            # adjustments below would grow `len` to ~eps(hi)/2
-            step = exp10(ceil(log10(eps(start))))
+            # step is below the floating-point spacing at `hi`: bump it up
+            step = eps(start)
         end
         divisor = one(F)
         len = one(F)
@@ -54,7 +53,7 @@ function histrange(lo::F, hi::F, n::Integer, closed::Symbol=:left) where F
         bw = (F(hi) - F(lo)) / n
         # a bin width below the floating-point spacing of the data would
         # stall the endpoint adjustments below
-        bw = max(bw, 2*eps(float(max(abs(lo), abs(hi)))))
+        bw = max(bw, eps(float(max(abs(lo), abs(hi)))))
         lbw = log10(bw)
         if lbw >= 0
             step = exp10(floor(lbw))
